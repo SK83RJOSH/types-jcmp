@@ -1,255 +1,312 @@
-// Type definitions for JCMP Client
+// Type definitions for JCMP
 // Project: JCMP
-// Definitions by: Joshua Wood <me@sk83rjo.sh>
+// Definitions by: Joshua Wood
 
 /**
- * Print debug message to the scripting log.
- */
-declare function print(...args: any[]);
-
-/**
- * Print debug message to a userdefined log.
- */
-declare function printLog(filename: string, ...args: any[]);
-
-/**
- * Represents a Camera.
- */
-declare class Camera {
-	private constructor();
-	/** The Camera's position in the game world. */
-	position: Vector3f;
-	/** The Camera's rotation in the game world. */
-	rotation: Vector3f;
-	/** The Camera's field of view. */
-	fieldOfView: number;
-	/** Whether or not the Camera is attached to the LocalPlayer. */
-	attachedToPlayer: boolean;
-}
-
-/**
- * The EventSystem is used to communicate between server packages and to clients.
+ * The EventSystem is used to communicate between client packages and to the server.
  */
 declare interface EventSystem {
 	/**
-	 * Add an event that can be called from the server.
-	 *
-	 * @param name Name of the event.
-	 * @param handler Function to execute when event is fired.
+	 * Adds an event that can be called from the server.
+	 * 
+	 * @param {string} name the event name
+	 * @param {(...any) => any} handler the function to execute when the event is called
+	 * 
+	 * @example jcmp.events.AddRemoteCallable('MyEvent', () => {
+	 *   print(the server called MyEvent!);
+	 * })
 	 */
-	AddRemoteCallable(name: string, handler: (...args: any[]) => any);
+	AddRemoteCallable(name: string, handler: (...any) => any): void;
 	/**
-	 * Calls an Event on the server.
-	 *
-	 * @param name Name of the event to fire.
-	 * @param args Arguments to pass to event.
+	 * Calls an Event on the server scripts. Other than the normal Call function, this function does not return anything.
+	 * 
+	 * @param {string} name event name
+	 * @param {any} ...args event arguments
+	 * 
+	 * @example // see the serverside documentation of EventSystem#AddRemoteCallable
+	 * jcmp.events.CallRemote('MyEvent');
 	 */
-	CallRemote(name: string, ...args: any[]);
+	CallRemote(name: string, ...args: any[]): void;
 }
 
-/**
- * Represents the JCMPUINamespace.
- */
-declare interface JCMPUINamespace {
-	/**
-	 * Add an event handler.
-	 *
-	 * @param name Name of the event.
-	 * @param handler Function to execute when event is fired.
-	 */
-	AddEventHandler(name: string, handler: (...args: any[]) => any);
-	/**
-	 * Broadcast an event.
-	 * NOTE: This function returns an array with all return values from all event handlers triggered.
-	 *
-	 * @param name Name of the event to fire.
-	 * @param args Arguments to pass to event.
-	 */
-	BroadcastEvent(name: string, ...args: any[]): Array<any>;
-}
-
-/**
- * Represents the JCMPNamespace.
- */
-declare interface JCMPNamspace {
-	/** Global instance of the JCMPUINamespace. */
-	readonly ui: JCMPUINamespace;
-	/** Global instance of the World. */
-	readonly world: World;
-}
-
-/**
- * Represents the LocalPlayer.
- */
-declare interface LocalPlayer {
-	/** LocalPlayer's Camera. */
-	camera: Camera;
-	/** Whether or not the LocalPlayer is frozen. */
-	frozen: boolean;
-	/** Whether or not the LocalPlayer's controls are enabled. */
-	controlsEnabled: boolean;
-}
-
-/**
- * Global instance of the EventSystem.
- */
-declare const localPlayer: LocalPlayer;
-
-/**
- * Represents a Matrix.
- */
-declare class Matrix {
-	public constructor();
-	readonly length: number;
-	readonly position: Vector3f;
-	/**
-	 * Rotates the Matrix.
-	 */
-	Transpose(): Matrix;
-	/**
-	 * Rotates the Matrix.
-	 *
-	 * @param factor Amount to rotate the Matrix by.
-	 * @param vector Normalized vector to rotate the Matrix by.
-	 */
-	Rotate(factor: number, vector: Vector3f): Matrix;
-	/**
-	 * Scales the Matrix.
-	 *
-	 * @param vector Amount to translate the Matrix by.
-	 */
-	Translate(vector: Vector3f): Matrix;
-	/**
-	 * Rotates the Matrix.
-	 *
-	 * @param position Position of the Matrix.
-	 * @param target Position to look at.
-	 * @param up Normalized up direction.
-	 */
-	LookAt(position: Vector3f, target: Vector3f, up: Vector3f): Matrix;
-	/**
-	 * Multiply the Matrix.
-	 *
-	 * @param matrix Matrix to multiply the Matrix by.
-	 */
-	mul(matrix: Matrix): Matrix;
-	/**
-	 * Divide the Matrix.
-	 *
-	 * @param matrix Matrix to divide the Matrix by.
-	 */
-	div(matrix: Matrix): Matrix;
-	/**
-	 * Subtract from the Matrix.
-	 *
-	 * @param matrix Matrix to subtract from the Matrix.
-	 */
-	sub(matrix: Matrix): Matrix;
-	/**
-	 * Add to the Matrix.
-	 *
-	 * @param matrix Matrix to add to the Matrix.
-	 */
-	add(matrix: Matrix): Matrix;
-	/**
-	 * Destroys the Matrix.
-	 */
-	Destroy();
-}
-
-/**
- * Represents a NetworkPlayer.
- */
-declare class NetworkPlayer {
-	private constructor();
-	/**
-	 * Network ID of this entity.
-	 * NOTE: It is not unique across diferent entities and will be re-assigned once this entity is destroyed.
-	 */
-	readonly networkId: number;
-	/** Player's name. */
-	readonly name: string;
-	/** Player's health. */
-	readonly health: number;
-	/** Player's max health. */
-	readonly maxHealth: number;
-	/** Whether or not the the Player is the Local Player. */
-	readonly localPlayer: boolean;
-	GetBoneTransform(bone: number, p2: number): Matrix;
-	GetRenderTransform(bone: number, p2: number): Matrix;
-}
-
-/**
- * Represents a Renderer.
- */
-declare class Renderer {
-	private constructor();
-	/** Renderer's viewport size. */
-	readonly viewportSize: Vector2f;
+declare interface Renderer {
+	readonly viewportSize: Vector2;
 	readonly dtf: number;
 	/**
-	 * Enable culling.
-	 *
-	 * @param enabled Whether or not to enable culling.
+	 * @param {boolean} p1
 	 */
-	EnableCulling(enabed: boolean);
+	EnableCulling(p1: boolean): void;
 	/**
-	 * Set the Renderer's transform.
-	 *
-	 * @param transform The new transform.
+	 * @param {Matrix} p1
 	 */
-	SetTransform(transform: Matrix);
-	DrawText(text: string, position: Vector2f, scale: Vector2f, color: RGBA, fontsize: number, fontname: string);
-	MeasureText(text: string, fontsize: number, fontname: string);
-	DrawRect(position: Vector2f, size: Vector2f, color: RGBA);
-	DrawRect(position: Vector3f, size: Vector2f, color: RGBA);
-	DrawLine(start: Vector2f, end: Vector2f, color: RGBA);
-	DrawTexture(texture: Texture, position: Vector3f, scale?: Vector2f);
+	SetTransform(p1: Matrix): void;
+	/**
+	 * @param {string} p1 
+	 * @param {Vector3} p2 
+	 * @param {Vector2} p3 
+	 * @param {RGBA} p4 
+	 * @param {number} p5 
+	 * @param {string} p6
+	 */
+	DrawText(p1: string, p2: Vector3, p3: Vector2, p4: RGBA, p5: number, p6: string): void;
+	/**
+	 * @param {string} p1 
+	 * @param {number} p2 
+	 * @param {string} p3
+	 */
+	MeasureText(p1: string, p2: number, p3: string): Vector2;
+	/**
+	 * @param {any} p1 
+	 * @param {Vector2} p2 
+	 * @param {RGBA} p3
+	 */
+	DrawRect(p1: any, p2: Vector2, p3: RGBA): void;
+	/**
+	 * @param {any} p1 
+	 * @param {any} p2 
+	 * @param {RGBA} p3
+	 */
+	DrawLine(p1: any, p2: any, p3: RGBA): void;
+	/**
+	 * @param {Texture} p1 
+	 * @param {Array<any>} p2
+	 */
+	DrawTexture(p1: Texture, p2: Array<any>): void;
 }
 
-/**
- * Represents a Texture.
- */
-declare class Texture {
-	private constructor();
-	baseColor: RGBA;
-	size: Vector2f;
-}
-
-/**
- * Represents a WebUIWindow.
- */
 declare class WebUIWindow {
-	public constructor(id: string, url: string, size: Vector2);
-	size: Vector2f;
-	localtion: string;
+	/**
+	 * Creates an instance of WebUIWindow
+	 * 
+	 * @param {string} name 
+	 * @param {string} location 
+	 * @param {Vector2} size
+	 */
+	public constructor(name: string, location: string, size: Vector2);
+	size: Vector2;
+	location: string;
 	hidden: boolean;
-	position: Vector2f;
+	/**
+	 * the WebUIWindow's position in the game world
+	 */
+	position: Vector2;
 	autoResize: boolean;
 	captureMouseInput: boolean;
 	readonly texture: Texture;
 	autoRenderTexture: boolean;
-	BringToFront();
-	Reload(p1: boolean);
-	Destroy();
+	BringToFront(): void;
+	/**
+	 * @param {boolean} p1
+	 */
+	Reload(p1: boolean): void;
+	/**
+	 * Destroys the WebUIWindow
+	 */
+	Destroy(): void;
+}
+
+declare interface Texture {
+	baseColor: RGBA;
+	size: Vector2;
 }
 
 /**
- * Represents the game world.
+ * Global JCMP class. Use jcmp in your script.
  */
-declare class World {
-	private constructor();
+declare interface JCMPNamespace {
+	readonly ui: JCMPUINamespace;
+	readonly viewportSize: Vector2;
+	readonly world: World;
+}
+
+declare interface JCMPUINamespace {
+	[customProperty: string]: any;
+	[customProperty: number]: any;
+	/**
+	 * @param {string} p1 
+	 * @param {(...any) => any} p2
+	 */
+	AddEvent(p1: string, p2: (...any) => any): void;
+	/**
+	 * @param {string} p1 
+	 * @param {Array<any>} p2
+	 */
+	CallEvent(p1: string, p2: Array<any>): void;
+}
+
+declare interface LocalPlayer {
+	/**
+	 * the LocalPlayer's position in the game world
+	 */
+	position: Vector3;
+	/**
+	 * the LocalPlayer's rotation in the game world
+	 */
+	rotation: Vector3;
+	readonly camera: Camera;
+	frozen: boolean;
+	controlsEnabled: boolean;
+	baseState: number;
+	/**
+	 * @param {number} p1 
+	 * @param {boolean} p2
+	 */
+	SetAbilityEnabled(p1: number, p2: boolean): void;
+	/**
+	 * @param {number} p1
+	 */
+	IsAbilityEnabled(p1: number): boolean;
+	/**
+	 * @param {string} p1
+	 */
+	CallGameEvent(p1: string): void;
+	/**
+	 * @param {number} p1
+	 */
+	GetRenderPosition(p1: number): Vector3;
+	/**
+	 * @param {number} p1
+	 */
+	GetRenderTransform(p1: number): Matrix;
+	/**
+	 * @param {number} p1 
+	 * @param {number} p2
+	 */
+	GetBoneTransform(p1: number, p2: number): Matrix;
+}
+
+declare interface NetworkPlayer {
+	/**
+	 * the network id of this entity. It is not unique across different entities and will be re-assigned once this entity was destroyed
+	 */
+	readonly networkId: number;
+	/**
+	 * the NetworkPlayer's name
+	 */
+	readonly name: string;
+	readonly health: number;
+	readonly maxHealth: number;
+	readonly localPlayer: boolean;
+	/**
+	 * the NetworkPlayer's position in the game world
+	 */
+	readonly position: Vector3;
+	/**
+	 * the NetworkPlayer's rotation in the game world
+	 */
+	readonly rotation: Vector3;
+	/**
+	 * @param {number} p1 
+	 * @param {number} p2
+	 */
+	GetBoneTransform(p1: number, p2: number): Matrix;
+	/**
+	 * @param {number} p1
+	 */
+	GetRenderTransform(p1: number): Matrix;
+}
+
+/**
+ * Class to manipulate the game world.
+ */
+declare interface World {
+	/**
+	 * weather id (TODO: link weather types)
+	 */
 	weather: number;
 	weatherVisible: boolean;
+	/**
+	 * RGBA color of the moon
+	 */
 	moonColor: RGBA;
-	sunPosition: Vector2f;
+	/**
+	 * 2D position of the sun
+	 */
+	sunPosition: Vector2;
 	sunHDRScale: number;
+	/**
+	 * RGBA color of the sun
+	 */
 	sunColor: RGBA;
-	SetTime(hour: number, minute: number);
-	ResetSunPosition();
+	/**
+	 * Sets the local world time
+	 * 
+	 * @param {number} hour hour (0-24)
+	 * @param {number} minute minute (0-60)
+	 */
+	SetTime(hour: number, minute: number): void;
+	/**
+	 * resets the suns position
+	 */
+	ResetSunPosition(): void;
+}
+
+declare interface Camera {
+	/**
+	 * the Camera's position in the game world
+	 */
+	position: Vector3;
+	/**
+	 * the Camera's rotation in the game world
+	 */
+	rotation: Vector3;
+	fieldOfView: number;
+	attachedToPlayer: boolean;
 }
 
 /**
- * Global viewport size.
+ * Just don't use it for now.
  */
-declare const viewportSize: Vector2f;
+declare interface Settings {
+	/**
+	 * @param {string} p1 
+	 * @param {any} p2
+	 */
+	Set(p1: string, p2: any): void;
+	/**
+	 * @param {string} p1
+	 */
+	Get(p1: string): any;
+	/**
+	 * @param {string} p1
+	 */
+	Exists(p1: string): boolean;
+	/**
+	 * @param {string} p1
+	 */
+	Delete(p1: string): boolean;
+	/**
+	 * Destroys the Settings
+	 */
+	Destroy(): void;
+}
+
+declare interface localPlayer {
+	/**
+	 * the localPlayer's position in the game world
+	 */
+	position: Vector3f;
+	/**
+	 * the localPlayer's rotation in the game world
+	 */
+	rotation: Vector3f;
+	camera: any;
+	frozen: any;
+	controlsEnabled: any;
+	baseState: any;
+	/**
+	 * Destroys the localPlayer
+	 */
+	Destroy(): void;
+}
+
+/**
+ * Just don't use it for now.
+ */
+declare interface settings {
+	/**
+	 * Destroys the settings
+	 */
+	Destroy(): void;
+}
+

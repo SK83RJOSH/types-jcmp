@@ -1,160 +1,414 @@
-// Type definitions for JCMP Shared
+// Type definitions for JCMP
 // Project: JCMP
-// Definitions by: Joshua Wood <me@sk83rjo.sh>
+// Definitions by: Joshua Wood
 
 /**
  * The EventSystem is used to communicate between server packages and to clients.
  */
 declare interface EventSystem {
 	/**
-	 * Add an event handler.
-	 *
-	 * @param name Name of the event.
-	 * @param handler Function to execute when event is fired.
+	 * Adds an event handler
+	 * 
+	 * @param {string} name the event name
+	 * @param {(...any) => any} handler the function to execute when the event is called
+	 * 
+	 * @example jcmp.events.Add('MyEvent', () => {
+	 *   console.log('hello world!');
+	 * })
 	 */
-	Add(name: string, handler: (...args: any[]) => any);
+	Add(name: string, handler: (...any) => any): void;
 	/**
-	 * Calls an Event
-	 * NOTE: This function returns an array with all return values from all event handlers triggered.
-	 *
-	 * @param name Name of the event to fire.
-	 * @param args Arguments to pass to event.
+	 * Calls an Event.
+	 * 
+	 * This function always returns an array with all return values from all event handlers for that name.
+	 * 
+	 * @param {string} name event name
+	 * @param {any} ...args event arguments
+	 * 
+	 * @example jcmp.events.Add('MyEvent', (x = 1) => {
+	 *   console.log(the value of x is ${x});
+	 *   return x;
+	 * });
+	 * jcmp.events.Call('MyEvent'); // the value of x is 1
+	 * jcmp.events.Call('MyEvent', 5); // the value of x is 5
+	 * 
+	 * var ret = jcmp.events.Call('MyEvent');
+	 * // ret = [1]
 	 */
 	Call(name: string, ...args: any[]): Array<any>;
 }
 
-/**
- * Global instance of the EventSystem.
- */
-declare const events: EventSystem;
+declare class Vector3f {
+	/**
+	 * Creates an instance of Vector3f
+	 * 
+	 * @param {number} x X value
+	 * @param {number} y Y value
+	 * @param {number} z Z value
+	 */
+	public constructor(x?: number, y?: number, z?: number);
+	/**
+	 * X value
+	 */
+	x: number;
+	/**
+	 * Y value
+	 */
+	y: number;
+	/**
+	 * Z value
+	 */
+	z: number;
+	/**
+	 * length of the Vector3f
+	 */
+	readonly length: number;
+	/**
+	 * @param {Vector3f} vec
+	 */
+	mul(vec: Vector3f): Vector3f;
+	/**
+	 * @param {Vector3f} vec
+	 */
+	div(vec: Vector3f): Vector3f;
+	/**
+	 * @param {Vector3f} vec
+	 */
+	sub(vec: Vector3f): Vector3f;
+	/**
+	 * @param {Vector3f} vec
+	 */
+	add(vec: Vector3f): Vector3f;
+}
+
+declare class RGB {
+	/**
+	 * Creates an instance of RGB
+	 * 
+	 * @param {number} r red channel value (0-255)
+	 * @param {number} g green channel value (0-255)
+	 * @param {number} b blue channel value (0-255)
+	 */
+	public constructor(r?: number, g?: number, b?: number);
+	/**
+	 * red channel value (0-255)
+	 */
+	r: number;
+	/**
+	 * green channel value (0-255)
+	 */
+	g: number;
+	/**
+	 * blue channel value (0-255)
+	 */
+	b: number;
+}
 
 /**
- * Represents the JCMPNamespace.
+ * Global JCMP class. Use jcmp in your script.
  */
-declare interface JCMPNamspace {
-	/** All loaded Packages. */
+declare interface JCMPNamespace {
+	[customProperty: string]: any;
+	[customProperty: number]: any;
+	/**
+	 * all loaded packages
+	 */
 	readonly packages: Array<Package>;
-	/** Current network version of the server. */
+	/**
+	 * event system
+	 */
+	readonly events: EventSystem;
+	/**
+	 * the current network version of the server
+	 */
 	readonly networkVersion: number;
 }
 
 /**
- * Global instance of the JCMPNamespace.
+ * A scripting package that is available or running already
  */
-declare const jcmp: JCMPNamspace;
-
-/**
- * Represents a loaded Package.
- */
-declare class Package {
-	private constructor();
-	/** Package name. */
+declare interface Package {
+	/**
+	 * the Package's name
+	 */
 	readonly name: string;
-	/** Path to the package. */
+	/**
+	 * the path to the package
+	 */
 	readonly dir: string;
-	/** Whether or not the configuration of this package is valid. */
+	/**
+	 * whether the configuration of the package is valid
+	 */
 	readonly valid: boolean;
-	/** JSON encoded config. */
+	/**
+	 * JSON-encoded string of the package.json
+	 */
 	readonly config: string;
 	/**
-	 * Starts the package.
-	 * This is currently marked as UNSTABLE and is not guaranteed to work.
+	 * Starts the package
+	 * 
+	 * @example //Start all the packages
+	 * function main(){
+	 *   jcmp.packages.forEach(p => {
+	 *     p.Start()
+	 *   }
+	 * }
+	 * main();
 	 */
 	Start(): boolean;
 	/**
-	 * Stops the package.
-	 * This is currently marked as UNSTABLE and is not guaranteed to work.
+	 * Stops the package
+	 * 
+	 * @example //Stop all the packages
+	 * function main(){
+	 *   jcmp.packages.forEach(p => {
+	 *     p.Stop()
+	 *   }
+	 * }
+	 * main();
 	 */
-	Stop();
-}
-
-/**
- * Represents an RGB value.
- */
-declare class RGB {
-	/**
-	 * Construct an RGB valuue.
-	 *
-	 * @param Red channel value (0-255).
-	 * @param green channel value (0-255).
-	 * @param Blue channel value (0-255).
-	 */
-	constructor(r?: number, g?: number, b?: number);
-	/** Red channel value (0-255). */
-	readonly r: number;
-	/** Green channel value (0-255). */
-	readonly g: number;
-	/** Blue channel value (0-255). */
-	readonly b: number;
-}
-
-/**
- * Represents an RGBA value.
- */
-declare class RGBA {
-	/**
-	 * Construct an RGB valuue.
-	 *
-	 * @param Red channel value (0-255).
-	 * @param green channel value (0-255).
-	 * @param Blue channel value (0-255).
-	 * @param Alpha channel value (0-255).
-	 */
-	constructor(r?: number, g?: number, b?: number, a?: number);
-	/** Red channel value (0-255). */
-	readonly r: number;
-	/** Green channel value (0-255). */
-	readonly g: number;
-	/** Blue channel value (0-255). */
-	readonly b: number;
-	/** Alpha channel value (0-255). */
-	readonly a: number;
+	Stop(): void;
 }
 
 declare class Vector2 {
-	constructor(x?: number, y?: number);
-	readonly x: number;
-	readonly y: number;
+	/**
+	 * Creates an instance of Vector2
+	 * 
+	 * @param {number} x X value
+	 * @param {number} y Y value
+	 */
+	public constructor(x?: number, y?: number);
+	/**
+	 * X value
+	 */
+	x: number;
+	/**
+	 * Y value
+	 */
+	y: number;
+	/**
+	 * length of the Vector2
+	 */
 	readonly length: number;
-	Destroy();
 }
 
-declare class Vector2f extends Vector2 {
-	mul(vector: Vector2f): Vector2f;
-	div(vector: Vector2f): Vector2f;
-	sub(vector: Vector2f): Vector2f;
-	add(vector: Vector2f): Vector2f;
-}
-
-declare class Vector3 {
-	constructor(x?: number, y?: number, z?: number);
-	readonly x: number;
-	readonly y: number;
-	readonly z: number;
-	readonly length: number;
-	Destroy();
-}
-
-declare class Vector3f extends Vector3 {
-	mul(vector: Vector3f): Vector3f;
-	div(vector: Vector3f): Vector3f;
-	sub(vector: Vector3f): Vector3f;
-	add(vector: Vector3f): Vector3f;
+declare class RGBA {
+	/**
+	 * Creates an instance of RGBA
+	 * 
+	 * @param {number} r red channel value (0-255)
+	 * @param {number} g green channel value (0-255)
+	 * @param {number} b blue channel value (0-255)
+	 * @param {number} a alpha channel value (0-255)
+	 */
+	public constructor(r?: number, g?: number, b?: number, a?: number);
+	/**
+	 * red channel value (0-255)
+	 */
+	readonly r: number;
+	/**
+	 * green channel value (0-255)
+	 */
+	readonly g: number;
+	/**
+	 * blue channel value (0-255)
+	 */
+	readonly b: number;
+	/**
+	 * alpha channel value (0-255)
+	 */
+	readonly a: number;
 }
 
 declare class Vector4 {
-	constructor(x?: number, y?: number, z?: number, w?: number);
-	readonly x: number;
-	readonly y: number;
-	readonly z: number;
-	readonly w: number;
+	/**
+	 * Creates an instance of Vector4
+	 * 
+	 * @param {number} x X value
+	 * @param {number} y Y value
+	 * @param {number} z Z value
+	 * @param {number} w W value
+	 */
+	public constructor(x?: number, y?: number, z?: number, w?: number);
+	/**
+	 * X value
+	 */
+	x: number;
+	/**
+	 * Y value
+	 */
+	y: number;
+	/**
+	 * Z value
+	 */
+	z: number;
+	/**
+	 * W value
+	 */
+	w: number;
+	/**
+	 * length of the Vector4
+	 */
 	readonly length: number;
-	Destroy();
 }
 
-declare class Vector4f extends Vector4 {
-	mul(vector: Vector4f): Vector4f;
-	div(vector: Vector4f): Vector4f;
-	sub(vector: Vector4f): Vector4f;
-	add(vector: Vector4f): Vector4f;
+declare class Vector2f {
+	/**
+	 * Creates an instance of Vector2f
+	 * 
+	 * @param {number} x X value
+	 * @param {number} y Y value
+	 */
+	public constructor(x?: number, y?: number);
+	/**
+	 * X value
+	 */
+	x: number;
+	/**
+	 * Y value
+	 */
+	y: number;
+	/**
+	 * length of the Vector2f
+	 */
+	readonly length: number;
+	/**
+	 * @param {Vector2f} vec
+	 */
+	mul(vec: Vector2f): Vector2f;
+	/**
+	 * @param {Vector2f} vec
+	 */
+	div(vec: Vector2f): Vector2f;
+	/**
+	 * @param {Vector2f} vec
+	 */
+	sub(vec: Vector2f): Vector2f;
+	/**
+	 * @param {Vector2f} vec
+	 */
+	add(vec: Vector2f): Vector2f;
 }
+
+declare class Vector3 {
+	/**
+	 * Creates an instance of Vector3
+	 * 
+	 * @param {number} x X value
+	 * @param {number} y Y value
+	 * @param {number} z Z value
+	 */
+	public constructor(x?: number, y?: number, z?: number);
+	/**
+	 * X value
+	 */
+	x: number;
+	/**
+	 * Y value
+	 */
+	y: number;
+	/**
+	 * Z value
+	 */
+	z: number;
+	/**
+	 * length of the Vector3
+	 */
+	readonly length: number;
+}
+
+declare interface Matrix {
+	/**
+	 * the Matrix's position in the game world
+	 */
+	readonly position: Vector3;
+	Transpose(): Matrix;
+	/**
+	 * @param {Vector3} p1
+	 */
+	Scale(p1: Vector3): Matrix;
+	/**
+	 * @param {number} p1 
+	 * @param {Vector3} p2
+	 */
+	Rotate(p1: number, p2: Vector3): Matrix;
+	/**
+	 * @param {Vector3} p1
+	 */
+	Translate(p1: Vector3): Matrix;
+	/**
+	 * @param {Vector3} p1 
+	 * @param {Vector3} p2 
+	 * @param {Vector3} p3
+	 */
+	LookAt(p1: Vector3, p2: Vector3, p3: Vector3): Matrix;
+	/**
+	 * @param {Matrix} p1
+	 */
+	mul(p1: Matrix): Matrix;
+	/**
+	 * @param {Matrix} p1
+	 */
+	div(p1: Matrix): Matrix;
+	/**
+	 * @param {Matrix} p1
+	 */
+	sub(p1: Matrix): Matrix;
+	/**
+	 * @param {Matrix} p1
+	 */
+	add(p1: Matrix): Matrix;
+}
+
+declare class Vector4f {
+	/**
+	 * Creates an instance of Vector4f
+	 * 
+	 * @param {number} x X value
+	 * @param {number} y Y value
+	 * @param {number} z Z value
+	 * @param {number} w W value
+	 */
+	public constructor(x?: number, y?: number, z?: number, w?: number);
+	/**
+	 * X value
+	 */
+	x: number;
+	/**
+	 * Y value
+	 */
+	y: number;
+	/**
+	 * Z value
+	 */
+	z: number;
+	/**
+	 * W value
+	 */
+	w: number;
+	/**
+	 * length of the Vector4f
+	 */
+	readonly length: number;
+	/**
+	 * @param {Vector4f} vec
+	 */
+	mul(vec: Vector4f): Vector4f;
+	/**
+	 * @param {Vector4f} vec
+	 */
+	div(vec: Vector4f): Vector4f;
+	/**
+	 * @param {Vector4f} vec
+	 */
+	sub(vec: Vector4f): Vector4f;
+	/**
+	 * @param {Vector4f} vec
+	 */
+	add(vec: Vector4f): Vector4f;
+}
+
+/**
+ * The global instance of the JCMPNamespace.
+ */
+declare const jcmp: JCMPNamespace;
