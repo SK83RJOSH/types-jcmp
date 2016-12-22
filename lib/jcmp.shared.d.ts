@@ -35,7 +35,8 @@ declare interface EventSystem {
 	 * var ret = jcmp.events.Call('MyEvent');
 	 * // ret = [1]
 	 */
-	Call(name: string, ...args: any[]): Array<any>;
+	Call(name: string, ...args: any[]): any;
+	Add(name: 'PackageLoaded', handler: (pack: Package) => any): void;
 }
 
 declare class Vector3f {
@@ -113,7 +114,7 @@ declare interface JCMPNamespace {
 	/**
 	 * all loaded packages
 	 */
-	readonly packages: Array<Package>;
+	readonly packages: any;
 	/**
 	 * event system
 	 */

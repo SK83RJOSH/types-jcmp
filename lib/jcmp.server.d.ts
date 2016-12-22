@@ -13,23 +13,23 @@ declare interface JCMPNamespace {
 	/**
 	 * all connected players
 	 */
-	readonly players: Array<Player>;
+	readonly players: any;
 	/**
 	 * all spawned vehicles
 	 */
-	readonly vehicles: Array<Vehicle>;
+	readonly vehicles: any;
 	/**
 	 * all spawned objects
 	 */
-	readonly objects: Array<GameObject>;
+	readonly objects: any;
 	/**
 	 * all spawned poi (point of interests)
 	 */
-	readonly poi: Array<POI>;
+	readonly poi: any;
 	/**
 	 * all spawned checkpoints
 	 */
-	readonly checkpoints: Array<Checkpoint>;
+	readonly checkpoints: any;
 }
 
 /**
@@ -62,6 +62,44 @@ declare interface EventSystem {
 	 * });
 	 */
 	CallRemote(name: string, target: Player, ...args: any[]): void;
+	/**
+	 * Called when a Player enters a Checkpoint
+	 */
+	Add(name: 'CheckpointEnter', handler: (checkpoint: Checkpoint, player: Player) => any): void;
+	/**
+	 * Called when a Player leaves a Checkpoint
+	 */
+	Add(name: 'CheckpointLeave', handler: (checkpoint: Checkpoint, player: Player) => any): void;
+	Add(name: 'PlayerReady', handler: (player: Player) => any): void;
+	Add(name: 'PlayerDeath', handler: (player: Player, killer: any, reason: Number) => any): void;
+	Add(name: 'PlayerRespawn', handler: (player: Player) => any): void;
+	/**
+	 * called when a Player enters a Vehicle.
+	 */
+	Add(name: 'PlayerVehicleEntered', handler: (player: Player, vehicle: Vehicle, seatIndex: any) => any): void;
+	Add(name: 'PlayerVehicleSeatChange', handler: (this: Player, vehicle: Vehicle, seatIndex: any, seatIndex2: any) => any): void;
+	Add(name: 'PlayerVehicleExited', handler: (this: Player, vehicle: Vehicle, seatIndex: any) => any): void;
+	Add(name: 'VehicleCreated', handler: (this: Vehicle) => any): void;
+	Add(name: 'PlayerHijackVehicle', handler: (occupant: any, this1: Vehicle, currentPlayer: Player) => any): void;
+	Add(name: 'VehicleDestroyed', handler: (vehicle: Vehicle) => any): void;
+	Add(name: 'PlayerCreated', handler: (player: Player) => any): void;
+	Add(name: 'PlayerDestroyed', handler: (player: Player) => any): void;
+	/**
+	 * Called when a RemoteClient tries to connect to the Server
+	 */
+	Add(name: 'ClientConnectRequest', handler: (playerName: string, ipAddress: string) => any): void;
+	/**
+	 * Called when a RemoteClient connected to the Server
+	 */
+	Add(name: 'ClientConnected', handler: (client: RemoteClient) => any): void;
+	/**
+	 * Called when a RemoteClient disconnected from the Server
+	 */
+	Add(name: 'ClientDisconnected', handler: (client: RemoteClient, reason: Number) => any): void;
+	/**
+	 * Called when a new Package has been added to the Server. Detected packages will not be started automatically
+	 */
+	Add(name: 'PackageDetected', handler: (pack: Package) => any): void;
 }
 
 declare class Checkpoint {
@@ -153,7 +191,7 @@ declare interface Server {
 	/**
 	 * Server Arguments (flags)
 	 */
-	readonly args: Array<Argument>;
+	readonly args: any;
 	/**
 	 * JSON-encoded string of the config.json
 	 */
@@ -165,7 +203,7 @@ declare interface Server {
 	/**
 	 * connected clients
 	 */
-	readonly clients: Array<RemoteClient>;
+	readonly clients: any;
 	/**
 	 * Stops the Server
 	 * 
@@ -356,7 +394,7 @@ declare interface Player {
 	/**
 	 * weapons in the inventory
 	 */
-	readonly weapons: Array<PlayerWeapon>;
+	readonly weapons: any;
 	/**
 	 * the currently selected(equipped) weapon
 	 */

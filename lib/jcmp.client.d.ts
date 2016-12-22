@@ -27,6 +27,11 @@ declare interface EventSystem {
 	 * jcmp.events.CallRemote('MyEvent');
 	 */
 	CallRemote(name: string, ...args: any[]): void;
+	Add(name: 'GameTeleportInitiated', handler: () => any): void;
+	Add(name: 'GameTeleportCompleted', handler: () => any): void;
+	Add(name: 'WndProc', handler: (msg: Number, wParam: Number, lParam: Number) => any): void;
+	Add(name: 'WebsitesApproved', handler: (obj: any) => any): void;
+	Add(name: 'CEFCommand', handler: (cmd: string, data: string) => any): void;
 }
 
 declare interface Renderer {
