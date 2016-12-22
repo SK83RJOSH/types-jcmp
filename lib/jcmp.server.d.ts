@@ -11,10 +11,6 @@ declare interface JCMPNamespace {
 	 */
 	readonly server: Server;
 	/**
-	 * all connected players
-	 */
-	readonly players: Array<Player>;
-	/**
 	 * all spawned vehicles
 	 */
 	readonly vehicles: Array<Vehicle>;

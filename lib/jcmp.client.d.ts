@@ -29,8 +29,11 @@ declare interface EventSystem {
 	CallRemote(name: string, ...args: any[]): void;
 	Add(name: 'GameTeleportInitiated', handler: () => any): void;
 	Add(name: 'GameTeleportCompleted', handler: () => any): void;
+	Add(name: 'GameUpdateRender', handler: (scriptingRenderer: Renderer) => any): void;
+	Add(name: 'GameRender', handler: (scriptingRenderer: Renderer) => any): void;
+	Add(name: 'Render', handler: (scriptingRenderer: Renderer) => any): void;
 	Add(name: 'WndProc', handler: (msg: number, wParam: number, lParam: number) => any): void;
-	Add(name: 'WebsitesApproved', handler: (obj: unknown) => any): void;
+	Add(name: 'WebsitesApproved', handler: (websites: Array<string>) => any): void;
 	Add(name: 'CEFCommand', handler: (cmd: string, data: string) => any): void;
 }
 
@@ -73,10 +76,10 @@ declare interface Renderer {
 	 */
 	DrawLine(p1: any, p2: any, p3: RGBA): void;
 	/**
-	 * @param {Texture} p1 
-	 * @param {Array<any>} p2
+	 * @param {Texture} p1 the Texture to draw
+	 * @param {any} p2
 	 */
-	DrawTexture(p1: Texture, p2: Array<any>): void;
+	DrawTexture(p1: Texture, p2: any): void;
 }
 
 declare class WebUIWindow {
@@ -121,7 +124,22 @@ declare interface Texture {
 declare interface JCMPNamespace {
 	readonly ui: JCMPUINamespace;
 	readonly viewportSize: Vector2f;
+	readonly localPlayer: LocalPlayer;
+	/**
+	 * all players
+	 */
+	readonly players: Array<NetworkPlayer>;
 	readonly world: World;
+	readonly settings: Settings;
+	/**
+	 * @param {string} p1
+	 */
+	print(p1: string): void;
+	/**
+	 * @param {string} p1 
+	 * @param {string} p2
+	 */
+	printLog(p1: string, p2: string): void;
 }
 
 declare interface JCMPUINamespace {
@@ -288,35 +306,6 @@ declare interface Settings {
 	Delete(p1: string): boolean;
 	/**
 	 * Destroys the Settings
-	 */
-	Destroy(): void;
-}
-
-declare interface localPlayer {
-	/**
-	 * the localPlayer's position in the game world
-	 */
-	position: Vector3f;
-	/**
-	 * the localPlayer's rotation in the game world
-	 */
-	rotation: Vector3f;
-	camera: any;
-	frozen: any;
-	controlsEnabled: any;
-	baseState: any;
-	/**
-	 * Destroys the localPlayer
-	 */
-	Destroy(): void;
-}
-
-/**
- * Just don't use it for now.
- */
-declare interface settings {
-	/**
-	 * Destroys the settings
 	 */
 	Destroy(): void;
 }

@@ -39,6 +39,34 @@ declare interface EventSystem {
 	Add(name: 'PackageLoaded', handler: (pack: Package) => any): void;
 }
 
+declare class RGBA {
+	/**
+	 * Creates an instance of RGBA
+	 * 
+	 * @param {number} r red channel value (0-255)
+	 * @param {number} g green channel value (0-255)
+	 * @param {number} b blue channel value (0-255)
+	 * @param {number} a alpha channel value (0-255)
+	 */
+	public constructor(r?: number, g?: number, b?: number, a?: number);
+	/**
+	 * red channel value (0-255)
+	 */
+	readonly r: number;
+	/**
+	 * green channel value (0-255)
+	 */
+	readonly g: number;
+	/**
+	 * blue channel value (0-255)
+	 */
+	readonly b: number;
+	/**
+	 * alpha channel value (0-255)
+	 */
+	readonly a: number;
+}
+
 declare class Vector3f {
 	/**
 	 * Creates an instance of Vector3f
@@ -123,6 +151,10 @@ declare interface JCMPNamespace {
 	 * the current network version of the server
 	 */
 	readonly networkVersion: number;
+	/**
+	 * all players
+	 */
+	readonly players: Array<NetworkPlayer>;
 }
 
 /**
@@ -191,34 +223,6 @@ declare class Vector2 {
 	 * length of the Vector2
 	 */
 	readonly length: number;
-}
-
-declare class RGBA {
-	/**
-	 * Creates an instance of RGBA
-	 * 
-	 * @param {number} r red channel value (0-255)
-	 * @param {number} g green channel value (0-255)
-	 * @param {number} b blue channel value (0-255)
-	 * @param {number} a alpha channel value (0-255)
-	 */
-	public constructor(r?: number, g?: number, b?: number, a?: number);
-	/**
-	 * red channel value (0-255)
-	 */
-	readonly r: number;
-	/**
-	 * green channel value (0-255)
-	 */
-	readonly g: number;
-	/**
-	 * blue channel value (0-255)
-	 */
-	readonly b: number;
-	/**
-	 * alpha channel value (0-255)
-	 */
-	readonly a: number;
 }
 
 declare class Vector4 {
