@@ -35,7 +35,7 @@ declare interface EventSystem {
 	 * var ret = jcmp.events.Call('MyEvent');
 	 * // ret = [1]
 	 */
-	Call(name: string, ...args: any[]): any;
+	Call(name: string, ...args: any[]): Array<any>;
 	Add(name: 'PackageLoaded', handler: (pack: Package) => any): void;
 }
 
@@ -114,7 +114,7 @@ declare interface JCMPNamespace {
 	/**
 	 * all loaded packages
 	 */
-	readonly packages: any;
+	readonly packages: Array<Package>;
 	/**
 	 * event system
 	 */
@@ -318,31 +318,35 @@ declare class Vector3 {
 	readonly length: number;
 }
 
-declare interface Matrix {
+declare class Matrix {
+	/**
+	 * Creates an instance of Matrix
+	 */
+	public constructor();
 	/**
 	 * the Matrix's position in the game world
 	 */
-	readonly position: Vector3;
+	readonly position: Vector3f;
 	Transpose(): Matrix;
 	/**
-	 * @param {Vector3} p1
+	 * @param {Vector3f} scale
 	 */
-	Scale(p1: Vector3): Matrix;
+	Scale(scale: Vector3f): Matrix;
 	/**
-	 * @param {number} p1 
-	 * @param {Vector3} p2
+	 * @param {number} factor 
+	 * @param {Vector3f} rotation
 	 */
-	Rotate(p1: number, p2: Vector3): Matrix;
+	Rotate(factor: number, rotation: Vector3f): Matrix;
 	/**
-	 * @param {Vector3} p1
+	 * @param {Vector3f} translation
 	 */
-	Translate(p1: Vector3): Matrix;
+	Translate(translation: Vector3f): Matrix;
 	/**
-	 * @param {Vector3} p1 
-	 * @param {Vector3} p2 
-	 * @param {Vector3} p3
+	 * @param {Vector3f} p1 
+	 * @param {Vector3f} p2 
+	 * @param {Vector3f} p3
 	 */
-	LookAt(p1: Vector3, p2: Vector3, p3: Vector3): Matrix;
+	LookAt(p1: Vector3f, p2: Vector3f, p3: Vector3f): Matrix;
 	/**
 	 * @param {Matrix} p1
 	 */

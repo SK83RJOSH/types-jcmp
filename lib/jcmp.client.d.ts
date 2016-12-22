@@ -29,13 +29,13 @@ declare interface EventSystem {
 	CallRemote(name: string, ...args: any[]): void;
 	Add(name: 'GameTeleportInitiated', handler: () => any): void;
 	Add(name: 'GameTeleportCompleted', handler: () => any): void;
-	Add(name: 'WndProc', handler: (msg: Number, wParam: Number, lParam: Number) => any): void;
-	Add(name: 'WebsitesApproved', handler: (obj: any) => any): void;
+	Add(name: 'WndProc', handler: (msg: number, wParam: number, lParam: number) => any): void;
+	Add(name: 'WebsitesApproved', handler: (obj: unknown) => any): void;
 	Add(name: 'CEFCommand', handler: (cmd: string, data: string) => any): void;
 }
 
 declare interface Renderer {
-	readonly viewportSize: Vector2;
+	readonly viewportSize: Vector2f;
 	readonly dtf: number;
 	/**
 	 * @param {boolean} p1
@@ -47,25 +47,25 @@ declare interface Renderer {
 	SetTransform(p1: Matrix): void;
 	/**
 	 * @param {string} p1 
-	 * @param {Vector3} p2 
-	 * @param {Vector2} p3 
+	 * @param {Vector3f} p2 
+	 * @param {Vector2f} p3 
 	 * @param {RGBA} p4 
 	 * @param {number} p5 
 	 * @param {string} p6
 	 */
-	DrawText(p1: string, p2: Vector3, p3: Vector2, p4: RGBA, p5: number, p6: string): void;
+	DrawText(p1: string, p2: Vector3f, p3: Vector2f, p4: RGBA, p5: number, p6: string): void;
 	/**
 	 * @param {string} p1 
 	 * @param {number} p2 
 	 * @param {string} p3
 	 */
-	MeasureText(p1: string, p2: number, p3: string): Vector2;
+	MeasureText(p1: string, p2: number, p3: string): Vector2f;
 	/**
 	 * @param {any} p1 
-	 * @param {Vector2} p2 
+	 * @param {Vector2f} p2 
 	 * @param {RGBA} p3
 	 */
-	DrawRect(p1: any, p2: Vector2, p3: RGBA): void;
+	DrawRect(p1: any, p2: Vector2f, p3: RGBA): void;
 	/**
 	 * @param {any} p1 
 	 * @param {any} p2 
@@ -112,7 +112,7 @@ declare class WebUIWindow {
 
 declare interface Texture {
 	baseColor: RGBA;
-	size: Vector2;
+	size: Vector2f;
 }
 
 /**
@@ -120,7 +120,7 @@ declare interface Texture {
  */
 declare interface JCMPNamespace {
 	readonly ui: JCMPUINamespace;
-	readonly viewportSize: Vector2;
+	readonly viewportSize: Vector2f;
 	readonly world: World;
 }
 
@@ -143,32 +143,32 @@ declare interface LocalPlayer {
 	/**
 	 * the LocalPlayer's position in the game world
 	 */
-	position: Vector3;
+	position: Vector3f;
 	/**
 	 * the LocalPlayer's rotation in the game world
 	 */
-	rotation: Vector3;
+	rotation: Vector3f;
 	readonly camera: Camera;
 	frozen: boolean;
 	controlsEnabled: boolean;
 	baseState: number;
 	/**
-	 * @param {number} p1 
-	 * @param {boolean} p2
+	 * @param {number} ability 
+	 * @param {boolean} enabled
 	 */
-	SetAbilityEnabled(p1: number, p2: boolean): void;
+	SetAbilityEnabled(ability: number, enabled: boolean): void;
+	/**
+	 * @param {number} ability
+	 */
+	IsAbilityEnabled(ability: number): boolean;
+	/**
+	 * @param {string} event
+	 */
+	CallGameEvent(event: string): void;
 	/**
 	 * @param {number} p1
 	 */
-	IsAbilityEnabled(p1: number): boolean;
-	/**
-	 * @param {string} p1
-	 */
-	CallGameEvent(p1: string): void;
-	/**
-	 * @param {number} p1
-	 */
-	GetRenderPosition(p1: number): Vector3;
+	GetRenderPosition(p1: number): Vector3f;
 	/**
 	 * @param {number} p1
 	 */
@@ -189,17 +189,23 @@ declare interface NetworkPlayer {
 	 * the NetworkPlayer's name
 	 */
 	readonly name: string;
+	/**
+	 * the NetworkPlayer's current health
+	 */
 	readonly health: number;
+	/**
+	 * the NetworkPlayer's max health
+	 */
 	readonly maxHealth: number;
 	readonly localPlayer: boolean;
 	/**
 	 * the NetworkPlayer's position in the game world
 	 */
-	readonly position: Vector3;
+	readonly position: Vector3f;
 	/**
 	 * the NetworkPlayer's rotation in the game world
 	 */
-	readonly rotation: Vector3;
+	readonly rotation: Vector3f;
 	/**
 	 * @param {number} p1 
 	 * @param {number} p2
@@ -227,7 +233,7 @@ declare interface World {
 	/**
 	 * 2D position of the sun
 	 */
-	sunPosition: Vector2;
+	sunPosition: Vector2f;
 	sunHDRScale: number;
 	/**
 	 * RGBA color of the sun
@@ -250,11 +256,11 @@ declare interface Camera {
 	/**
 	 * the Camera's position in the game world
 	 */
-	position: Vector3;
+	position: Vector3f;
 	/**
 	 * the Camera's rotation in the game world
 	 */
-	rotation: Vector3;
+	rotation: Vector3f;
 	fieldOfView: number;
 	attachedToPlayer: boolean;
 }

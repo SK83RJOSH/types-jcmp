@@ -13,23 +13,23 @@ declare interface JCMPNamespace {
 	/**
 	 * all connected players
 	 */
-	readonly players: any;
+	readonly players: Array<Player>;
 	/**
 	 * all spawned vehicles
 	 */
-	readonly vehicles: any;
+	readonly vehicles: Array<Vehicle>;
 	/**
 	 * all spawned objects
 	 */
-	readonly objects: any;
+	readonly objects: Array<GameObject>;
 	/**
 	 * all spawned poi (point of interests)
 	 */
-	readonly poi: any;
+	readonly poi: Array<POI>;
 	/**
 	 * all spawned checkpoints
 	 */
-	readonly checkpoints: any;
+	readonly checkpoints: Array<Checkpoint>;
 }
 
 /**
@@ -53,7 +53,7 @@ declare interface EventSystem {
 	 * Calls an Event on the client side to one or all Players. Other than the normal Call function, this function does not return anything.
 	 * 
 	 * @param {string} name event name
-	 * @param {Player} target target to call the event on. If using null, the event will be broadcasted to all clients.
+	 * @param {Player | undefined} target target to call the event on. If using null, the event will be broadcasted to all clients.
 	 * @param {any} ...args event arguments
 	 * 
 	 * @example // see the clientside documentation of EventSystem#AddRemoteCallable
@@ -61,7 +61,7 @@ declare interface EventSystem {
 	 *   jcmp.events.CallRemote('MyEvent', player);
 	 * });
 	 */
-	CallRemote(name: string, target: Player, ...args: any[]): void;
+	CallRemote(name: string, target: Player | undefined, ...args: any[]): void;
 	/**
 	 * Called when a Player enters a Checkpoint
 	 */
@@ -71,16 +71,16 @@ declare interface EventSystem {
 	 */
 	Add(name: 'CheckpointLeave', handler: (checkpoint: Checkpoint, player: Player) => any): void;
 	Add(name: 'PlayerReady', handler: (player: Player) => any): void;
-	Add(name: 'PlayerDeath', handler: (player: Player, killer: any, reason: Number) => any): void;
+	Add(name: 'PlayerDeath', handler: (player: Player, killer: Player | undefined, reason: number) => any): void;
 	Add(name: 'PlayerRespawn', handler: (player: Player) => any): void;
 	/**
 	 * called when a Player enters a Vehicle.
 	 */
-	Add(name: 'PlayerVehicleEntered', handler: (player: Player, vehicle: Vehicle, seatIndex: any) => any): void;
-	Add(name: 'PlayerVehicleSeatChange', handler: (this: Player, vehicle: Vehicle, seatIndex: any, seatIndex2: any) => any): void;
-	Add(name: 'PlayerVehicleExited', handler: (this: Player, vehicle: Vehicle, seatIndex: any) => any): void;
-	Add(name: 'VehicleCreated', handler: (this: Vehicle) => any): void;
-	Add(name: 'PlayerHijackVehicle', handler: (occupant: any, this1: Vehicle, currentPlayer: Player) => any): void;
+	Add(name: 'PlayerVehicleEntered', handler: (player: Player, vehicle: Vehicle, seatIndex: number) => any): void;
+	Add(name: 'PlayerVehicleSeatChange', handler: (player: Player, vehicle: Vehicle, seatIndex: number, seatIndex2: number) => any): void;
+	Add(name: 'PlayerVehicleExited', handler: (player: Player, vehicle: Vehicle, seatIndex: number) => any): void;
+	Add(name: 'VehicleCreated', handler: (vehicle: Vehicle) => any): void;
+	Add(name: 'PlayerHijackVehicle', handler: (occupant: Player | undefined, vehicle: Vehicle, currentPlayer: Player) => any): void;
 	Add(name: 'VehicleDestroyed', handler: (vehicle: Vehicle) => any): void;
 	Add(name: 'PlayerCreated', handler: (player: Player) => any): void;
 	Add(name: 'PlayerDestroyed', handler: (player: Player) => any): void;
@@ -95,7 +95,7 @@ declare interface EventSystem {
 	/**
 	 * Called when a RemoteClient disconnected from the Server
 	 */
-	Add(name: 'ClientDisconnected', handler: (client: RemoteClient, reason: Number) => any): void;
+	Add(name: 'ClientDisconnected', handler: (client: RemoteClient, reason: number) => any): void;
 	/**
 	 * Called when a new Package has been added to the Server. Detected packages will not be started automatically
 	 */
@@ -125,11 +125,11 @@ declare class Checkpoint {
 	/**
 	 * the Checkpoint's position in the game world
 	 */
-	position: Vector3;
+	position: Vector3f;
 	/**
 	 * the Checkpoint's rotation in the game world
 	 */
-	rotation: Vector3;
+	rotation: Vector3f;
 	/**
 	 * radius of the Checkpoint
 	 */
@@ -191,7 +191,7 @@ declare interface Server {
 	/**
 	 * Server Arguments (flags)
 	 */
-	readonly args: any;
+	readonly args: Array<Argument>;
 	/**
 	 * JSON-encoded string of the config.json
 	 */
@@ -203,7 +203,7 @@ declare interface Server {
 	/**
 	 * connected clients
 	 */
-	readonly clients: any;
+	readonly clients: Array<RemoteClient>;
 	/**
 	 * Stops the Server
 	 * 
@@ -257,11 +257,11 @@ declare class GameObject {
 	/**
 	 * the GameObject's position in the game world
 	 */
-	position: Vector3;
+	position: Vector3f;
 	/**
 	 * the GameObject's rotation in the game world
 	 */
-	rotation: Vector3;
+	rotation: Vector3f;
 	/**
 	 * world dimension of the GameObject.
 	 */
@@ -269,13 +269,13 @@ declare class GameObject {
 	/**
 	 * Applies a 3d-force to the GameObject
 	 * 
-	 * @param {Vector3} direction force direction
+	 * @param {Vector3f} direction force direction
 	 * @param {number} deltaTime delta time
 	 * 
 	 * @example var object = new GameObject('glowstick_yellow');
 	 * object.ApplyForce(new Vector3f(100, 0, 0), 1);
 	 */
-	ApplyForce(direction: Vector3, deltaTime: number): void;
+	ApplyForce(direction: Vector3f, deltaTime: number): void;
 	/**
 	 * Destroys the GameObject
 	 */
@@ -378,7 +378,7 @@ declare interface Player {
 	/**
 	 * the Player's position in the game world
 	 */
-	position: Vector3;
+	position: Vector3f;
 	/**
 	 * the position where the player respawns upon calling Player#Respawn
 	 */
@@ -386,7 +386,7 @@ declare interface Player {
 	/**
 	 * the Player's rotation in the game world
 	 */
-	rotation: Vector3;
+	rotation: Vector3f;
 	/**
 	 * the position the player aims at
 	 */
@@ -394,7 +394,7 @@ declare interface Player {
 	/**
 	 * weapons in the inventory
 	 */
-	readonly weapons: any;
+	readonly weapons: Array<PlayerWeapon> | undefined;
 	/**
 	 * the currently selected(equipped) weapon
 	 */
@@ -410,7 +410,7 @@ declare interface Player {
 	/**
 	 * the players current vehicle
 	 */
-	readonly vehicle: Vehicle;
+	readonly vehicle: Vehicle | undefined;
 	/**
 	 * Immediately kicks the Player from the Server.
 	 * 
@@ -503,15 +503,15 @@ declare class Vehicle {
 	/**
 	 * the Vehicle's position in the game world
 	 */
-	position: Vector3;
+	position: Vector3f;
 	/**
 	 * the position the vehicles turret is aiming at
 	 */
-	aimPosition: Vector3;
+	aimPosition: Vector3f;
 	/**
 	 * the vehicles rotation
 	 */
-	rotation: Vector3;
+	rotation: Vector3f;
 	/**
 	 * the vehicles positional speed
 	 */
@@ -559,7 +559,7 @@ declare class Vehicle {
 	 *   }
 	 * });
 	 */
-	GetOccupant(seat: number): Player;
+	GetOccupant(seat: number): Player | undefined;
 	/**
 	 * Fully repairs the given vehicle
 	 * 
@@ -615,7 +615,7 @@ declare class POI {
 	/**
 	 * the POI's position in the game world
 	 */
-	position: Vector3;
+	position: Vector3f;
 	/**
 	 * minimum distance to display the POI on the HUD
 	 */
