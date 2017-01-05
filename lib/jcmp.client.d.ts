@@ -125,10 +125,6 @@ declare interface JCMPNamespace {
 	readonly ui: JCMPUINamespace;
 	readonly viewportSize: Vector2f;
 	readonly localPlayer: LocalPlayer;
-	/**
-	 * all players
-	 */
-	readonly players: Array<NetworkPlayer>;
 	readonly world: World;
 	readonly settings: Settings;
 	/**

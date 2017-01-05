@@ -154,7 +154,7 @@ declare interface JCMPNamespace {
 	/**
 	 * all players
 	 */
-	readonly players: Array<NetworkPlayer>;
+	readonly players: any;
 }
 
 /**
