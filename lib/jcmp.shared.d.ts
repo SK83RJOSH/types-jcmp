@@ -2,6 +2,12 @@
 // Project: JCMP
 // Definitions by: Joshua Wood
 
+declare var require: {
+	<T> (path: string): T;
+	(paths: string[], callback: (...modules: any[]) => void): void;
+	ensure: (paths: string[], callback: (require: < T > (path: string) => T) => void) => void;
+};)
+
 /**
  * The EventSystem is used to communicate between server packages and to clients.
  */
