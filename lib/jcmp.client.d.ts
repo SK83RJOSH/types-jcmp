@@ -32,7 +32,6 @@ declare interface EventSystem {
 	Add(name: 'GameUpdateRender', handler: (scriptingRenderer: Renderer) => any): void;
 	Add(name: 'GameRender', handler: (scriptingRenderer: Renderer) => any): void;
 	Add(name: 'Render', handler: (scriptingRenderer: Renderer) => any): void;
-	Add(name: 'WndProc', handler: (msg: number, wParam: number, lParam: number) => any): void;
 	Add(name: 'WebsitesApproved', handler: (websites: Array<string>) => any): void;
 	Add(name: 'CEFCommand', handler: (cmd: string, data: string) => any): void;
 }
@@ -166,6 +165,10 @@ declare interface LocalPlayer {
 	frozen: boolean;
 	controlsEnabled: boolean;
 	baseState: number;
+	/**
+	 * the network id of this entity. It is not unique across different entities and will be re-assigned once this entity was destroyed
+	 */
+	readonly networkId: number;
 	/**
 	 * @param {number} ability 
 	 * @param {boolean} enabled
