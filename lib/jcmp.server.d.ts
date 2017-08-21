@@ -2,6 +2,25 @@
 // Project: JCMP
 // Definitions by: Joshua Wood
 
+declare interface CarHandlingEngineTransmission {
+	gears: number;
+	nitrousGears: number;
+	sequential: number;
+	manualClutch: number;
+	manualClutchBlendRpm: number;
+	manualClutchBlendTime: number;
+	forwardRatioPercentage: number;
+	lowGearForwardRatioPct: number;
+	topSpeed: number;
+	lowGearsFinalDrive: number;
+	finalDrive: number;
+	reverseUsesForwardGears: number;
+	reverseGearRatio: number;
+	clutchDelay: number;
+	decayTimeToCruiseRpm: number;
+	targetCruiseRpm: number;
+}
+
 /**
  * Global JCMP class. Use jcmp in your script.
  */
@@ -10,22 +29,6 @@ declare interface JCMPNamespace {
 	 * the server instance
 	 */
 	readonly server: Server;
-	/**
-	 * all spawned vehicles
-	 */
-	readonly vehicles: Array<Vehicle>;
-	/**
-	 * all spawned objects
-	 */
-	readonly objects: Array<GameObject>;
-	/**
-	 * all spawned poi (point of interests)
-	 */
-	readonly poi: Array<POI>;
-	/**
-	 * all spawned checkpoints
-	 */
-	readonly checkpoints: Array<Checkpoint>;
 }
 
 /**
@@ -34,129 +37,93 @@ declare interface JCMPNamespace {
 declare interface EventSystem {
 	/**
 	 * Adds an event that can be called from client scripts.
-	 * 
+	 *
 	 * The first argument in the handler is the Player from where the event is being called.
-	 * 
+	 *
 	 * @param {string} name the event name
 	 * @param {(...any) => any} handler the function to execute when the event is called
-	 * 
+	 *
 	 * @example jcmp.events.AddRemoteCallable('MyEvent', player => {
 	 *   console.log(${player.name} called MyEvent!);
-	 * })
+	 * });
 	 */
 	AddRemoteCallable(name: string, handler: (...any) => any): void;
 	/**
 	 * Calls an Event on the client side to one or all Players. Other than the normal Call function, this function does not return anything.
-	 * 
+	 *
 	 * @param {string} name event name
 	 * @param {Player | undefined} target target to call the event on. If using null, the event will be broadcasted to all clients.
 	 * @param {any} ...args event arguments
-	 * 
+	 *
 	 * @example // see the clientside documentation of EventSystem#AddRemoteCallable
 	 * jcmp.events.Add('PlayerReady', player => {
 	 *   jcmp.events.CallRemote('MyEvent', player);
 	 * });
 	 */
 	CallRemote(name: string, target: Player | undefined, ...args: any[]): void;
-	/**
-	 * Called when a Player enters a Checkpoint
-	 */
-	Add(name: 'CheckpointEnter', handler: (checkpoint: Checkpoint, player: Player) => any): void;
-	/**
-	 * Called when a Player leaves a Checkpoint
-	 */
-	Add(name: 'CheckpointLeave', handler: (checkpoint: Checkpoint, player: Player) => any): void;
 	Add(name: 'PlayerReady', handler: (player: Player) => any): void;
-	Add(name: 'PlayerDeath', handler: (player: Player, killer: Player | undefined, reason: number) => any): void;
-	Add(name: 'PlayerRespawn', handler: (player: Player) => any): void;
+	Add(name: 'PlayerRespawn', handler: (player_scripting_component: Player) => any): void;
+	Add(name: 'PlayerDeath', handler: (player_scripting_component: Player, killer_scripting_component: any, reason: number) => any): void;
 	/**
-	 * called when a Player enters a Vehicle.
+	 * called when a Player'}} enters a {{linked_type 'Vehicle.
 	 */
-	Add(name: 'PlayerVehicleEntered', handler: (player: Player, vehicle: Vehicle, seatIndex: number) => any): void;
-	Add(name: 'PlayerVehicleSeatChange', handler: (player: Player, vehicle: Vehicle, seatIndex: number, seatIndex2: number) => any): void;
-	Add(name: 'PlayerVehicleExited', handler: (player: Player, vehicle: Vehicle, seatIndex: number) => any): void;
-	Add(name: 'VehicleCreated', handler: (vehicle: Vehicle) => any): void;
-	Add(name: 'PlayerHijackVehicle', handler: (occupant: Player | undefined, vehicle: Vehicle, currentPlayer: Player) => any): void;
+	Add(name: 'PlayerVehicleEntered', handler: (player: any, vehicle: Vehicle, seatIndex: number) => any): void;
+	Add(name: 'PlayerVehicleSeatChange', handler: (player: any, vehicle: Vehicle, seatIndex: number, seat_index: number) => any): void;
+	Add(name: 'PlayerVehicleExited', handler: (player: any, vehicle: Vehicle, seatIndex: number) => any): void;
+	Add(name: 'PlayerHijackVehicle', handler: (occupant: Player, entity: Vehicle, player: Player) => any): void;
 	Add(name: 'VehicleDestroyed', handler: (vehicle: Vehicle) => any): void;
+	Add(name: 'VehicleCreated', handler: (vehicle: Vehicle) => any): void;
+	/**
+	 * called when a Vehicle is exploded.
+	 */
+	Add(name: 'VehicleExploded', handler: (vehicle: Vehicle) => any): void;
 	Add(name: 'PlayerCreated', handler: (player: Player) => any): void;
 	Add(name: 'PlayerDestroyed', handler: (player: Player) => any): void;
 	/**
-	 * Called when a RemoteClient tries to connect to the Server
+	 * Called when a RemoteClient'}} tries to connect to the {{linked_type 'Server
 	 */
 	Add(name: 'ClientConnectRequest', handler: (playerName: string, ipAddress: string) => any): void;
 	/**
-	 * Called when a RemoteClient connected to the Server
+	 * Called when a RemoteClient'}} connected to the {{linked_type 'Server
 	 */
 	Add(name: 'ClientConnected', handler: (client: RemoteClient) => any): void;
 	/**
-	 * Called when a RemoteClient disconnected from the Server
+	 * Called when a RemoteClient'}} disconnected from the {{linked_type 'Server
 	 */
 	Add(name: 'ClientDisconnected', handler: (client: RemoteClient, reason: number) => any): void;
-	/**
-	 * Called when a new Package has been added to the Server. Detected packages will not be started automatically
-	 */
-	Add(name: 'PackageDetected', handler: (pack: Package) => any): void;
 }
 
-declare class Checkpoint {
-	/**
-	 * Creates an instance of Checkpoint
-	 * 
-	 * @param {number} type the type of the checkpoint
-	 * @param {number} modelHash the modelHash the checkpoint should use
-	 * @param {Vector3f} position the position, where the checkpoint is created at
-	 * @param {Vector3f} rotation the rotation of the checkpoint
-	 */
-	public constructor(type: number, modelHash: number, position: Vector3f, rotation?: Vector3f);
-	[customProperty: string]: any;
-	[customProperty: number]: any;
-	/**
-	 * model hash of the Checkpoint (TODO: reference to all hashes)
-	 */
-	modelHash: number;
-	/**
-	 * the network id of this entity. It is not unique across different entities and will be re-assigned once this entity was destroyed
-	 */
-	readonly networkId: number;
-	/**
-	 * the Checkpoint's position in the game world
-	 */
-	position: Vector3f;
-	/**
-	 * the Checkpoint's rotation in the game world
-	 */
-	rotation: Vector3f;
-	/**
-	 * radius of the Checkpoint
-	 */
-	radius: number;
-	/**
-	 * whether the Checkpoint is visible to all Players.
-	 */
-	visible: boolean;
-	/**
-	 * world dimension of the Checkpoint.
-	 */
-	dimension: number;
-	/**
-	 * Sets the visibility of the Checkpoint for a certain Player
-	 * 
-	 * @param {Player} player target Player
-	 * @param {boolean} visible whether the Checkpoint should be visible (true = visible, false = not visible)
-	 */
-	SetVisibleForPlayer(player: Player, visible: boolean): void;
-	/**
-	 * Returns whether the Checkpoint is visible for a certain Player
-	 * true = visible
-	 * false = not visible
-	 * 
-	 * @param {Player} player target Player
-	 */
-	IsVisibleForPlayer(player: Player): boolean;
-	/**
-	 * Destroys the Checkpoint
-	 */
-	Destroy(): void;
+declare interface BoatHandlingSteeringSteeringFilter {
+	tToFullInputMinSpeedS: number;
+	tToFullInputMaxSpeedS: number;
+	inputStartSpeedKmph: number;
+	inputMaxSpeedKmph: number;
+	counterinputSpeedFactor: number;
+	zeroinputSpeedFactor: number;
+	inputSpeedcurveFalloff: number;
+}
+
+declare interface BoatHandlingPropellers {
+	maxThrust: number;
+	maxRpm: number;
+	maxReverseRpm: number;
+	diameter: number;
+	pitch: number;
+	dockingControls: BoatHandlingPropellersDockingControls;
+}
+
+declare interface CarHandlingLandGlobal {
+	linearDampingX: number;
+	linearDampingY: number;
+	linearDampingZ: number;
+	gravityMultiplierGrounded: number;
+	gravityMultiplierInAirUp: number;
+	gravityMultiplierInAirDown: number;
+	takeoffPitchDamping: number;
+	frontWheelsDamage: CarHandlingLandGlobalWheelDamage;
+	rearWheelsDamage: CarHandlingLandGlobalWheelDamage;
+	drift: CarHandlingLandGlobalDrift;
+	arcade: CarHandlingLandGlobalArcade;
 }
 
 /**
@@ -165,7 +132,7 @@ declare class Checkpoint {
 declare class Argument {
 	/**
 	 * Creates an instance of Argument
-	 * 
+	 *
 	 * @param {string} key Argument key
 	 * @param {string} value Argument value
 	 */
@@ -178,6 +145,15 @@ declare class Argument {
 	 * Argument value
 	 */
 	value: string;
+}
+
+declare interface VehicleHandling {
+	readonly car: CarHandling;
+	readonly boat: BoatHandling;
+	readonly helicopter: HelicopterHandling;
+	readonly plane: PlaneHandling;
+	readonly bike: BikeHandling;
+	Apply(): void;
 }
 
 /**
@@ -202,21 +178,21 @@ declare interface Server {
 	readonly clients: Array<RemoteClient>;
 	/**
 	 * Stops the Server
-	 * 
+	 *
 	 * @example jcmp.server.Stop();
 	 */
 	Stop(): void;
 	/**
 	 * Restarts the Server
-	 * 
+	 *
 	 * @example jcmp.server.Restart();
 	 */
 	Restart(): void;
 	/**
 	 * Adds a handler for the server input (console input)
-	 * 
+	 *
 	 * @param {(...any) => any} handler input handler
-	 * 
+	 *
 	 * @example jcmp.server.AddInputHandler(text => {
 	 *   console.log(input: ${text});
 	 * });
@@ -234,7 +210,7 @@ declare interface Server {
 declare class GameObject {
 	/**
 	 * Creates an instance of GameObject
-	 * 
+	 *
 	 * @param {string} model the model name (not hash!) of the object
 	 * @param {Vector3f} position the desired position of the GameObject
 	 * @param {Vector3f} rotation the desired rotation of the GameObject
@@ -242,14 +218,6 @@ declare class GameObject {
 	public constructor(model: string, position: Vector3f, rotation?: Vector3f);
 	[customProperty: string]: any;
 	[customProperty: number]: any;
-	/**
-	 * the model name (not hash!) of the object
-	 */
-	readonly model: string;
-	/**
-	 * the network id of this entity. It is not unique across different entities and will be re-assigned once this entity was destroyed
-	 */
-	readonly networkId: number;
 	/**
 	 * the GameObject's position in the game world
 	 */
@@ -259,15 +227,23 @@ declare class GameObject {
 	 */
 	rotation: Vector3f;
 	/**
+	 * the network id of this entity. It is not unique across different entities and will be re-assigned once this entity was destroyed
+	 */
+	readonly networkId: number;
+	/**
+	 * model hash of the GameObject (TODO: reference to all hashes)
+	 */
+	readonly modelHash: string;
+	/**
 	 * world dimension of the GameObject.
 	 */
 	dimension: number;
 	/**
 	 * Applies a 3d-force to the GameObject
-	 * 
+	 *
 	 * @param {Vector3f} direction force direction
 	 * @param {number} deltaTime delta time
-	 * 
+	 *
 	 * @example var object = new GameObject('glowstick_yellow');
 	 * object.ApplyForce(new Vector3f(100, 0, 0), 1);
 	 */
@@ -276,6 +252,17 @@ declare class GameObject {
 	 * Destroys the GameObject
 	 */
 	Destroy(): void;
+}
+
+declare interface PlaneHandling {
+	airSteering: PlaneHandlingAirSteering;
+	engine: PlaneHandlingEngine;
+}
+
+declare interface BoatHandlingFins {
+	referenceSpeedMs: number;
+	pressureDrag: number;
+	pressureDrag2: number;
 }
 
 /**
@@ -310,9 +297,9 @@ declare interface RemoteClient {
 	readonly steamAuthenticated: boolean;
 	/**
 	 * Immediately kicks the Client from the Server.
-	 * 
+	 *
 	 * @param {string} reason reason for kicking the Client. currently unused (cannot be seen by the user)
-	 * 
+	 *
 	 * @example jcmp.events.Add('ClientConnected', client => {
 	 *   client.Kick('meow!');
 	 * });
@@ -320,10 +307,10 @@ declare interface RemoteClient {
 	Kick(reason: string): void;
 	/**
 	 * Checks whether the client owns the DLC
-	 * 
+	 *
 	 * Available DLCs:
 	 * | Name | Value |
-	 * |:-----|------:|
+	 * |:-----|:------|
 	 * |SKY_FORTRESS|400551|
 	 * |MECHLANDASSAULT|400490|
 	 * |BAVARIUMSEAHEIST|442051|
@@ -336,9 +323,9 @@ declare interface RemoteClient {
 	 * |MINIGUNRACINGBOAT|388291|
 	 * |ROCKETLAUNCHERSPORTS_CAR|388292|
 	 * |REAPERMISSILEMECH|442052|
-	 * 
+	 *
 	 * @param {number} dlc DLC number
-	 * 
+	 *
 	 * @example jcmp.events.Add('ClientConnected', client => {
 	 *   if (!client.DoesOwnDLC(400551)) {
 	 *     console.log(${client.name} does not own Sky Fortress.);
@@ -351,6 +338,10 @@ declare interface RemoteClient {
 declare interface Player {
 	[customProperty: string]: any;
 	[customProperty: number]: any;
+	/**
+	 * the players current vehicle
+	 */
+	readonly vehicle: any;
 	/**
 	 * the associated RemoteClient of the player
 	 */
@@ -388,30 +379,22 @@ declare interface Player {
 	 */
 	aimPosition: Vector3f;
 	/**
-	 * weapons in the inventory
-	 */
-	readonly weapons: Array<PlayerWeapon> | undefined;
-	/**
 	 * the currently selected(equipped) weapon
 	 */
 	readonly selectedWeapon: PlayerWeapon;
 	/**
-	 * model name of the player
+	 * weapons in the inventory
 	 */
-	model: number;
+	readonly weapons: Array<PlayerWeapon> | undefined;
 	/**
 	 * world dimension of the Player.
 	 */
 	dimension: number;
 	/**
-	 * the players current vehicle
-	 */
-	readonly vehicle: Vehicle | undefined;
-	/**
 	 * Immediately kicks the Player from the Server.
-	 * 
+	 *
 	 * @param {string} reason reason for kicking the Player. currently unused (cannot be seen by the Player)
-	 * 
+	 *
 	 * @example jcmp.events.Add('PlayerReady', player => {
 	 *   player.Kick('meow!');
 	 * });
@@ -419,7 +402,7 @@ declare interface Player {
 	Kick(reason: string): void;
 	/**
 	 * Respawns the Player. The position is stored in Player.respawnPosition
-	 * 
+	 *
 	 * @example jcmp.events.Add('PlayerDeath', player => {
 	 *   player.respawnPosition = player.position
 	 *   player.Respawn();
@@ -428,16 +411,20 @@ declare interface Player {
 	Respawn(): void;
 	/**
 	 * Gives the Player a weapon.
-	 * 
+	 *
 	 * @param {number} weaponHash the weapon's hash
 	 * @param {number} ammo desired ammunition. If the Player already has the weapon, it will increase the ammo by this number.
 	 * @param {boolean} equipNow whether the weapon should be equipped automatically.
-	 * 
+	 *
 	 * @example jcmp.events.Add('PlayerReady', player => {
 	 *   player.GiveWeapon(2307691279, 100, true);
 	 * });
 	 */
 	GiveWeapon(weaponHash: number, ammo: number, equipNow: boolean): PlayerWeapon;
+	/**
+	 * @param {number} p1
+	 */
+	RemoveWeapon(p1: number): boolean;
 }
 
 /**
@@ -462,18 +449,298 @@ declare interface PlayerWeapon {
 	reserveAmmo: number;
 }
 
+declare interface CarHandling {
+	topSpeedKph: number;
+	topSpeed: number;
+	dragCoefficient: number;
+	pmMass: number;
+	pmLinearDamping: number;
+	pmAngularDamping: number;
+	pmGravityFactor: number;
+	landGlobal: CarHandlingLandGlobal;
+	engine: CarHandlingEngine;
+	engineTransmission: CarHandlingEngineTransmission;
+	brakes: CarHandlingBrakes;
+	steering: CarHandlingSteering;
+}
+
+declare interface CarHandlingLandGlobalWheelDamage {
+	skewHealth: number;
+	brokenWheelFrictionFraction: number;
+	brokenWheelRadiusFraction: number;
+}
+
+declare interface CarHandlingLandGlobalDrift {
+	driftEntrySlipAngle: number;
+	driftExitSlipAngle: number;
+	maxDriftAngleDeg: number;
+	driftLimitSpreadAngleDeg: number;
+	constantDriftTorque: number;
+	maxDriftTorque: number;
+	counterSteerTorque: number;
+	counterSteerTorqueHandbrake: number;
+	counterSteerTorqueBrake: number;
+	driftYawVelDamp: number;
+	overdriftYawVelDamp: number;
+	exitDriftYawVelDamp: number;
+	velocityRotationStartAngle: number;
+	velocityRotationEndAngle: number;
+	velocityRotationAmount: number;
+	velocityRotationAngleExp: number;
+	counterSteerRotFactor: number;
+	steeringSensitivity: number;
+	minSpeedToDriftKmph: number;
+	keepVelocityStrength: number;
+	maxKeepVelocityAccelerationG: number;
+}
+
+declare interface BikeHandlingSteering {
+	landSteering: CarHandlingSteering;
+	wheelie: BikeHandlingSteeringWheelie;
+}
+
+declare interface HelicopterHandlingModel {
+	centerOfTorquesX: number;
+	centerOfTorquesY: number;
+	centerOfTorquesZ: number;
+	altitudeInputPower: number;
+	yawInputPower: number;
+	pitchInputPower: number;
+	rollInputPower: number;
+	pitchInputDeadZone: number;
+	tToFullYawS: number;
+	maxSpeedTToFullYawS: number;
+	bankStartVelocityKmph: number;
+	bankMaxVelocityKmph: number;
+	minSpeedDiveKmph: number;
+	maxSpeedDiveKmph: number;
+	addDivePitchDeg: number;
+	addClimbPitchDeg: number;
+	maxRollInputForClimb: number;
+	climbSpeedLowSpeedKmph: number;
+	diveSpeedLowSpeedKmph: number;
+	minAltitudeInput: number;
+	unsettledAltitudeGainClimb: number;
+	unsettledAltitudeGainDive: number;
+	maxDivingGs: number;
+	maxClimbingGs: number;
+	addForceForwardPower: number;
+	addForceLateralPower: number;
+	trimInputGain: number;
+	forwardDrag: number;
+	lateralDrag: number;
+	verticalDrag: number;
+	tailLateralDrag: number;
+	tailVerticalDrag: number;
+	angularDrag: number;
+	lowSpeedMaxDragYawSpeed: number;
+	highSpeedMaxDragYawSpeed: number;
+	yawDragNoInput: number;
+	forwardDragNoInput: number;
+	lateralDragNoInput: number;
+	verticalDragNoInput: number;
+	tailDistanceToComM: number;
+	addForwardForce: number;
+	addRightForce: number;
+	addLateralFactorPullUp: number;
+	maxRollDeg: number;
+	addBankRollDeg: number;
+	addBankRollPullUpDeg: number;
+	maxPitchLowSpeedDeg: number;
+	maxPitchHighSpeedDeg: number;
+	counterPitchAngleDeg: number;
+	counterPitchSpeedKmph: number;
+	rollP: number;
+	rollI: number;
+	rollD: number;
+	rollMaxAmplitude: number;
+	pitchP: number;
+	pitchI: number;
+	pitchD: number;
+	pitchMaxAmplitude: number;
+	yawP: number;
+	yawI: number;
+	yawD: number;
+	yawMaxAmplitude: number;
+	lowSpeedAltitudeP: number;
+	lowSpeedAltitudeI: number;
+	lowSpeedAltitudeD: number;
+	highSpeedAltitudeP: number;
+	highSpeedAltitudeI: number;
+	highSpeedAltitudeD: number;
+	altitudeLimitThresholdLow: number;
+	altitudeLimitThresholdHigh: number;
+}
+
+declare interface CarHandlingLandGlobalArcade {
+	heatBoost: CarHandlingLandGlobalArcadePerformanceBoost;
+	nitroBoost: CarHandlingLandGlobalArcadePerformanceBoost;
+	nitroBoostUpgraded: CarHandlingLandGlobalArcadePerformanceBoost;
+	turboJump: CarHandlingLandGlobalArcadeTurboJump;
+	turboJumpUpgraded: CarHandlingLandGlobalArcadeTurboJump;
+}
+
+declare interface CarHandlingLandGlobalArcadePerformanceBoost {
+	torqueMultiplier: number;
+	gripMultiplier: number;
+	pushForce: number;
+	boostBlendTime: number;
+	extraTopSpeed: number;
+}
+
+declare interface CarHandlingEngine {
+	topSpeedJumpMultiplier: number;
+	resistanceAtMinRpm: number;
+	resistanceAtMaxRpm: number;
+	resistanceAtOptimalRpm: number;
+	revLimiterRpmDrop: number;
+	maxRpm: number;
+	minRpm: number;
+	optimalRpm: number;
+	torqueFactorAtMaxRpm: number;
+	torqueFactorAtMinRpm: number;
+	torqueFactorAtOptimalRpm: number;
+	clutchSlipRpm: number;
+	engineMinNoise: number;
+	engineDamageNoiseScale: number;
+	engineMaxDamageTorque: number;
+}
+
+declare interface CarHandlingLandGlobalArcadeTurboJump {
+	fMultiplier: number;
+	rMultiplier: number;
+	punchDelayTime: number;
+	punchSpeedKph: number;
+	topSpeedKph: number;
+	topSpeedJumpMultiplier: number;
+}
+
+declare interface InputAxisTiming {
+	timeToMaxInputAtMinSpeedS: number;
+	timeToMaxInputAtMaxSpeedS: number;
+	centeringInputTimeFactor: number;
+	counterInputTimeFactor: number;
+}
+
+declare interface CarHandlingBrakes {
+	front: CarHandlingBrakesBrakeAxis;
+	rear: CarHandlingBrakesBrakeAxis;
+	handbrakeFrictionFactor: number;
+}
+
+declare interface CarHandlingBrakesBrakeAxis {
+	handbrake: number;
+	maxBrakeTorque: number;
+	minTimeToBlock: number;
+}
+
+declare interface CarHandlingSteering {
+	deadZone: number;
+	saturationZone: number;
+	tToFullSteerS: number;
+	maxSpeedTToFullSteerS: number;
+	minSpeedKmph: number;
+	maxSpeedKmph: number;
+	steerAngleMinSpeedDeg: number;
+	steerAngleMaxSpeedDeg: number;
+	steerCurveFalloff: number;
+	countersteerSpeedFactor: number;
+	steerInSpeedFactor: number;
+	steerInputPowerPc: number;
+	steerInputPowerDurango: number;
+	steerInputPowerOrbis: number;
+	wheelDriftAligningStrength: number;
+}
+
+declare interface BoatHandling {
+	propellers: BoatHandlingPropellers;
+	fins: BoatHandlingFins;
+	steering: BoatHandlingSteering;
+}
+
+declare interface HelicopterHandling {
+	model: HelicopterHandlingModel;
+	steering: HelicopterHandlingSteering;
+}
+
+declare interface BoatHandlingPropellersDockingControls {
+	maxThrust: number;
+	maxDockingSpeedMs: number;
+	maxDockingControlThrottle: number;
+	dockingYawThrottleLimit: number;
+}
+
+declare interface BoatHandlingSteering {
+	accelerationSmoothing: number;
+	steeringfilter: BoatHandlingSteeringSteeringFilter;
+}
+
+declare interface PlaneHandlingAirSteering {
+	maxSteeringAngle: number;
+	accelerationSmoothing: number;
+	rollReturn: number;
+	pitchReturn: number;
+	referenceMinSpeedKPH: number;
+	referenceMaxSpeedKPH: number;
+	rollAxisTiming: InputAxisTiming;
+	pitchAxisTiming: InputAxisTiming;
+	yawAxisTiming: InputAxisTiming;
+}
+
+declare interface PlaneHandlingEngine {
+	minThrust: number;
+	maxThrust: number;
+	runThrust: number;
+	maxThrustAcceleration: number;
+	taxiingMaxThrust: number;
+	taxiingInputThreshold: number;
+	taxiingTopSpeed: number;
+}
+
+declare interface HelicopterHandlingSteering {
+	returnPitchLimit: number;
+	returnRollLimit: number;
+	airSteering: PlaneHandlingAirSteering;
+}
+
+declare interface BikeHandling {
+	topSpeedKph: number;
+	topSpeed: number;
+	dragCoefficient: number;
+	pmMass: number;
+	pmLinearDamping: number;
+	pmAngularDamping: number;
+	pmGravityFactor: number;
+	landGlobal: CarHandlingLandGlobal;
+	engine: CarHandlingEngine;
+	engineTransmission: CarHandlingEngineTransmission;
+	brakes: CarHandlingBrakes;
+	steering: BikeHandlingSteering;
+}
+
+declare interface BikeHandlingSteeringWheelie {
+	maxLeanAngleDeg: number;
+	inputReactiveness: number;
+	deadZone: number;
+	minSpeed: number;
+	wheelieAngleDeg: number;
+	wheelieTorque: number;
+	nosieAngleDeg: number;
+	nosieTorque: number;
+}
+
 /**
  * Vehicle
  */
 declare class Vehicle {
 	/**
 	 * Creates an instance of Vehicle
-	 * 
-	 * @param {string} modelHash the model hash (not name!) of the vehicle
+	 *
+	 * @param {number} modelHash the model hash (not name!) of the vehicle
 	 * @param {Vector3f} position the desired position of the vehicle
 	 * @param {Vector3f} rotation the desired rotation of the vehicle
 	 */
-	public constructor(modelHash: string, position: Vector3f, rotation?: Vector3f);
+	public constructor(modelHash: number, position: Vector3f, rotation?: Vector3f);
 	[customProperty: string]: any;
 	[customProperty: number]: any;
 	/**
@@ -481,49 +748,21 @@ declare class Vehicle {
 	 */
 	driver: Player;
 	/**
-	 * model hash of the Vehicle (TODO: reference to all hashes)
-	 */
-	modelHash: number;
-	/**
-	 * the vehicles health
-	 */
-	health: number;
-	/**
-	 * is the vehicle is destroyed or not (read-only)
-	 */
-	readonly destroyed: boolean;
-	/**
-	 * the network id of this entity. It is not unique across different entities and will be re-assigned once this entity was destroyed
-	 */
-	readonly networkId: number;
-	/**
 	 * the Vehicle's position in the game world
 	 */
 	position: Vector3f;
-	/**
-	 * the position the vehicles turret is aiming at
-	 */
-	aimPosition: Vector3f;
 	/**
 	 * the vehicles rotation
 	 */
 	rotation: Vector3f;
 	/**
-	 * the vehicles positional speed
+	 * the network id of this entity. It is not unique across different entities and will be re-assigned once this entity was destroyed
 	 */
-	linearVelocity: Vector3f;
+	readonly networkId: number;
 	/**
-	 * the vehicles rotational speed
+	 * is the vehicle is destroyed or not (read-only)
 	 */
-	angularVelocity: Vector3f;
-	/**
-	 * the vehicles color ID
-	 */
-	primaryColor: number;
-	/**
-	 * world dimension of the Vehicle.
-	 */
-	dimension: number;
+	readonly destroyed: boolean;
 	/**
 	 * whether the vehicle is equipped with bavarium nitro
 	 */
@@ -533,32 +772,34 @@ declare class Vehicle {
 	 */
 	turboJumpEnabled: boolean;
 	/**
-	 * Set the occupant of the given vehicle
-	 * 
-	 * @param {number} seat the vehicles seat
-	 * @param {Player} player the player entity
-	 * 
-	 * @example jcmp.events.Add('PlayerReady', player => {
-	 *   var vehicle = new Vehicle(28454791, player.position, player.rotation); //Spawn the vehicle at the players position
-	 *  vehicle.SetOccupant(0, player); //Assign the player to the driver seat
-	 * });
+	 * the vehicles color ID
 	 */
-	SetOccupant(seat: number, player: Player): void;
+	primaryColor: number;
 	/**
-	 * Get the occupant of a vehicle seat
-	 * 
-	 * @param {number} seat the vehicles seat
-	 * 
-	 * @example jcmp.events.Add('PlayerExitVehicle', (player, vehicle) => {
-	 *   if (vehicle.GetOccupant(0)) {
-	 *     console.log('There is still a driver in the vehicle.');
-	 *   }
-	 * });
+	 * the vehicles positional speed
 	 */
-	GetOccupant(seat: number): Player | undefined;
+	linearVelocity: Vector3f;
+	/**
+	 * the vehicles rotational speed
+	 */
+	angularVelocity: Vector3f;
+	aimPostion: Vector3f;
+	/**
+	 * the vehicles health
+	 */
+	health: number;
+	/**
+	 * model hash of the Vehicle (TODO: reference to all hashes)
+	 */
+	readonly modelHash: number;
+	readonly handling: VehicleHandling;
+	/**
+	 * world dimension of the Vehicle.
+	 */
+	dimension: number;
 	/**
 	 * Fully repairs the given vehicle
-	 * 
+	 *
 	 * @example jcmp.events.Add('VehicleDestroyed', vehicle => {
 	 *   vehicle.Repair();
 	 * });
@@ -566,111 +807,40 @@ declare class Vehicle {
 	Repair(): void;
 	/**
 	 * Respawns the vehicle at its initial spawning position
-	 * 
+	 *
 	 * @example jcmp.events.Add('VehicleDestroyed', vehicle => {
 	 *   vehicle.Respawn();
 	 * });
 	 */
 	Respawn(): void;
 	/**
-	 * Destroys the Vehicle
-	 */
-	Destroy(): void;
-}
-
-/**
- * A Point Of Interest in the game
- */
-declare class POI {
-	/**
-	 * Creates an instance of POI
-	 * 
-	 * @param {number} type the type of the POI
-	 * @param {Vector3f} position the position, where the POI is created at
-	 * @param {string} text the text/description of the point of interest
-	 */
-	public constructor(type: number, position: Vector3f, text?: string);
-	[customProperty: string]: any;
-	[customProperty: number]: any;
-	/**
-	 * POI type (TODO: link to all available POI types)
-	 */
-	type: number;
-	/**
-	 * current value of the progress bar (0.0-1.0)
-	 */
-	progress: number;
-	/**
-	 * maximal progress bar value
-	 */
-	progressMax: number;
-	/**
-	 * the network id of this entity. It is not unique across different entities and will be re-assigned once this entity was destroyed
-	 */
-	readonly networkId: number;
-	/**
-	 * the POI's position in the game world
-	 */
-	position: Vector3f;
-	/**
-	 * minimum distance to display the POI on the HUD
-	 */
-	minDistance: number;
-	/**
-	 * maximal distance to display the POI on the HUD
-	 */
-	maxDistance: number;
-	/**
-	 * text for the POI
-	 */
-	text: string;
-	/**
-	 * whether the POI is visible to all Players.
-	 */
-	visible: boolean;
-	/**
-	 * whether the POI should flash on the HUD
-	 */
-	flashing: boolean;
-	/**
-	 * whether the POI should be clamped to the HUD (when not in direct view, they will stay at the edges of the screen)
-	 */
-	clampedToScreen: boolean;
-	/**
-	 * world dimension of the POI.
-	 */
-	dimension: number;
-	/**
-	 * Sets the visibility of the POI for a certain Player
-	 * 
-	 * @param {Player} player target Player
-	 * @param {boolean} visible whether the POI should be visible (true = visible, false = not visible)
-	 * 
-	 * @example var myPOI = new POI(0, new Vector3f(0.0,0.0,0.0), "Test POI");
-	 * jcmp.events.Add('PlayerReady', player => {
-	 *   myPOI.SetVisibleForPlayer(player, true);
-	 * });
-	 */
-	SetVisibleForPlayer(player: Player, visible: boolean): void;
-	/**
-	 * Returns whether the POI is visible for a certain Player
-	 * true = visible
-	 * false = not visible
-	 * 
-	 * @param {Player} player target Player
-	 * 
-	 * @example var myPOI = new POI(0, new Vector3f(0.0,0.0,0.0), "Test POI");
-	 * jcmp.events.Add('PlayerReady', player => {
-	 *   if (myPOI.SetVisibleForPlayer(player) == true){
-	 *     //POI is currently visible to the player
-	 *   }else{
-	 *     //POI is not visible to the player
+	 * Get the occupant of a vehicle seat
+	 *
+	 * @param {number} seat the vehicles seat
+	 *
+	 * @example jcmp.events.Add('PlayerExitVehicle', (player, vehicle) => {
+	 *   if (vehicle.GetOccupant(0)) {
+	 *     console.log('There is still a driver in the vehicle.');
 	 *   }
 	 * });
 	 */
-	IsVisibleForPlayer(player: Player): boolean;
+	GetOccupant(seat: number): any;
 	/**
-	 * Destroys the POI
+	 * Set the occupant of the given vehicle.
+	 *
+	 * Note: if the player is not in the vicinity of the vehicle, he will first be teleported there automatically (slightly above the vehicle in the air).
+	 *
+	 * @param {number} seat the vehicles seat
+	 * @param {Player} player the player entity
+	 *
+	 * @example jcmp.events.Add('PlayerReady', player => {
+	 *   var vehicle = new Vehicle(28454791, player.position, player.rotation); //Spawn the vehicle at the players position
+	 *  vehicle.SetOccupant(0, player); //Assign the player to the driver seat
+	 * });
+	 */
+	SetOccupant(seat: number, player: Player): void;
+	/**
+	 * Destroys the Vehicle
 	 */
 	Destroy(): void;
 }

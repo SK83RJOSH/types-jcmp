@@ -14,9 +14,9 @@ declare interface EventSystem {
 	 * 
 	 * @example jcmp.events.Add('MyEvent', () => {
 	 *   console.log('hello world!');
-	 * })
+	 * });
 	 */
-	Add(name: string, handler: (...any) => any): void;
+	Add(name: string, handler: (...any) => any): EventInstance;
 	/**
 	 * Calls an Event.
 	 * 
@@ -36,35 +36,16 @@ declare interface EventSystem {
 	 * // ret = [1]
 	 */
 	Call(name: string, ...args: any[]): Array<any>;
+	/**
+	 * @param {EventInstance} p1
+	 */
+	Remove(p1: EventInstance): void;
+	/**
+	 * @param {string} p1
+	 */
+	RemoveAll(p1: string): void;
 	Add(name: 'PackageLoaded', handler: (pack: Package) => any): void;
-}
-
-declare class RGBA {
-	/**
-	 * Creates an instance of RGBA
-	 * 
-	 * @param {number} r red channel value (0-255)
-	 * @param {number} g green channel value (0-255)
-	 * @param {number} b blue channel value (0-255)
-	 * @param {number} a alpha channel value (0-255)
-	 */
-	public constructor(r?: number, g?: number, b?: number, a?: number);
-	/**
-	 * red channel value (0-255)
-	 */
-	readonly r: number;
-	/**
-	 * green channel value (0-255)
-	 */
-	readonly g: number;
-	/**
-	 * blue channel value (0-255)
-	 */
-	readonly b: number;
-	/**
-	 * alpha channel value (0-255)
-	 */
-	readonly a: number;
+	Add(name: 'ScriptError', handler: (file: string, line: number, error: any, stringtrace: any) => any): void;
 }
 
 declare class Vector3f {
@@ -133,6 +114,10 @@ declare class RGB {
 	b: number;
 }
 
+declare interface EventInstance {
+	oneShot: boolean;
+}
+
 /**
  * Global JCMP class. Use jcmp in your script.
  */
@@ -151,10 +136,12 @@ declare interface JCMPNamespace {
 	 * the current network version of the server
 	 */
 	readonly networkVersion: number;
+	readonly version: string;
 	/**
 	 * all players
 	 */
 	readonly players: any;
+	readonly vehicles: any;
 }
 
 /**
@@ -184,7 +171,7 @@ declare interface Package {
 	 * function main(){
 	 *   jcmp.packages.forEach(p => {
 	 *     p.Start()
-	 *   }
+	 *   });
 	 * }
 	 * main();
 	 */
@@ -196,7 +183,7 @@ declare interface Package {
 	 * function main(){
 	 *   jcmp.packages.forEach(p => {
 	 *     p.Stop()
-	 *   }
+	 *   });
 	 * }
 	 * main();
 	 */
@@ -223,6 +210,34 @@ declare class Vector2 {
 	 * length of the Vector2
 	 */
 	readonly length: number;
+}
+
+declare class RGBA {
+	/**
+	 * Creates an instance of RGBA
+	 * 
+	 * @param {number} r red channel value (0-255)
+	 * @param {number} g green channel value (0-255)
+	 * @param {number} b blue channel value (0-255)
+	 * @param {number} a alpha channel value (0-255)
+	 */
+	public constructor(r?: number, g?: number, b?: number, a?: number);
+	/**
+	 * red channel value (0-255)
+	 */
+	readonly r: number;
+	/**
+	 * green channel value (0-255)
+	 */
+	readonly g: number;
+	/**
+	 * blue channel value (0-255)
+	 */
+	readonly b: number;
+	/**
+	 * alpha channel value (0-255)
+	 */
+	readonly a: number;
 }
 
 declare class Vector4 {
